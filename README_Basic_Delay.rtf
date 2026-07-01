@@ -1,32 +1,20 @@
-{\rtf1\ansi\ansicpg1252\cocoartf2709
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+# Development Process Report Summary
 
-\f0\fs24 \cf0 # Basic Delay\
-\
-A JUCE C++ stereo delay plugin built for Music System Programming.\
-\
-## Features\
-\
-- Circular buffer delay line\
-- Delay time in milliseconds\
-- Feedback\
-- Dry/wet mix\
-- Output gain\
-- Stereo width\
-- Simple JUCE slider interface\
-\
-## Built With\
-\
-- JUCE\
-- Xcode\
-- C++\
-- VST3\
-- Tested in FL Studio on macOS\
-\
-## Notes\
-\
-This project is inspired by modern studio delay plugins such as Waves Manny Marroquin Delay, but is implemented as a learning project from first principles.}
+INTRODUCTION
+The Basic Delay project is a beginner-friendly JUCE C++ audio plugin developed to explore the structure of audio plugin programming and the DSP principles behind a simple stereo delay effect. I built the project using the standard JUCE plugin workflow, with the main source files organised as `PluginProcessor.h`, `PluginProcessor.cpp`, `PluginEditor.h`, and `PluginEditor.cpp`. The project aimed to demonstrate how a delay effect can be created inside a JUCE audio plugin using processor/editor separation, host-controlled parameters, and a simple slider-based interface. The commercial Waves Manny Marroquin Delay plugin was used only as inspiration for understanding delay-plugin controls and stereo workflow, not as a model to copy.
+
+TECHNICAL CONTEXT
+The technical foundation of the project is delay-line DSP. A delay effect stores earlier audio samples and reads them back after a chosen delay time, which means the delay time must be related to the system sample rate when converting milliseconds into samples. To avoid inefficiently shifting samples through memory, the plugin uses a circular delay buffer, where read and write positions move through the buffer and wrap around when they reach the end. Feedback was implemented by feeding a scaled delayed signal back into the delay buffer, while the wet/dry mix controls the balance between the direct input signal and the delayed signal. Feedback must be controlled carefully because excessive feedback can overload the delay system.
+
+DEVLOPMENT PROCESS
+The JUCE development process focused on separating the audio engine from the graphical interface. `PluginProcessor.h` and `PluginProcessor.cpp` contain the main processor class, DSP state, parameter layout, `prepareToPlay()`, and `processBlock()`. In this project, `prepareToPlay()` was used to allocate and clear the delay buffer before playback, while `processBlock()` handled the repeated block-by-block audio processing required by the plugin host.
+
+The project used `AudioProcessorValueTreeState` for parameters such as `delayTime`, `feedback`, `mix`, `outputGain`, and `stereoWidth`, because APVTS supports processor state management and parameter control. Output gain was stored in decibels and converted to linear gain using JUCE’s decibel utility.
+
+PROBLEMS, DEBUGGING, and LEARNING
+The main design decisions were to use JUCE and Projucer, build a stereo delay rather than a mono-only effect, use APVTS for user parameters, keep DSP logic in `processBlock()`, and keep GUI layout work in the editor files. This structure helped me understand why audio processing and GUI code should be separated: the processor is responsible for real-time audio work, while the editor manages sliders, layout, and user interaction. Building the stereo width stage also showed the importance of channel handling, because stereo plugins must process left and right channels carefully and avoid invalid channel access.
+
+Several problems were encountered and fixed during development. These included an Xcode syntax error involving `ParameterLayout`, a JUCE AU parameter-version warning, missing GUI sliders, FL Studio not finding the VST3 build until the plugin list was rescanned, a crash related to unsafe parameter access and the `outputGain` naming typo, and a silent-delay issue caused by delay-buffer channel allocation. These problems helped me understand that plugin development involves C++ structure, parameter naming, host scanning, buffer management, and careful debugging, not just DSP maths.
+
+CONCULSION
+Overall, the project achieved a working beginner stereo delay structure with delay time, feedback, wet/dry mix, output gain, stereo width, a simple JUCE slider interface, and FL Studio VST3 testing. The process helped me understand JUCE file organisation, APVTS parameters, audio callbacks, circular-buffer delay processing, and the relationship between DSP and plugin architecture. The next improvements would be to test the final commented build again, refine the interface, and extend the delay behaviour only after the basic implementation remains stable.
