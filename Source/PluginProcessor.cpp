@@ -64,7 +64,7 @@ BasicDelayAudioProcessor::createParameterLayout()
     // Stereo Width offsets the left and right delay times slightly,
     // 0.0mkeeps both channels the same, while 1.0 gives the widesr left/right timing difference.
     parameters.push_back (std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID {"steroWidth", 1},
+        juce::ParameterID {"stereoWidth", 1},
         "Stereo Width",
         juce::NormalisableRange<float> (0.0f, 1.0f, 0.01f),
         0.25f));
@@ -222,9 +222,9 @@ void BasicDelayAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     auto* feedbackParam = apvts.getRawParameterValue ("feedback");
     auto* mixParam = apvts.getRawParameterValue ("mix");
     auto* outputGainParam = apvts.getRawParameterValue ("outputGain");
-    auto* stereoWidthParm = apvts.getRawParameterValue("stereoWidth");
+    auto* stereoWidthParam = apvts.getRawParameterValue("stereoWidth");
 
-    if (delayTimeParam == nullptr || feedbackParam == nullptr || mixParam == nullptr || outputGainParam == nullptr || stereoWidthParm == nullptr)
+    if (delayTimeParam == nullptr || feedbackParam == nullptr || mixParam == nullptr || outputGainParam == nullptr || stereoWidthParam == nullptr)
         return;
  
     // Read the current parameter values.
@@ -236,7 +236,7 @@ void BasicDelayAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     const float mix = *apvts.getRawParameterValue ("mix");
     const float outputGainDb = *apvts.getRawParameterValue ("outputGain");
     const float outputGain = juce::Decibels::decibelsToGain (outputGainDb);
-    const float stereoWidth = stereoWidthParm->load();
+    const float stereoWidth = stereoWidthParam->load();
     
     // The delay buffer stores past samples.
     // Its length in samples determines the maximum possible delay time.
